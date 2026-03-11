@@ -1,28 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X, PlusCircle, LogOut, User } from 'lucide-react';
 
 export default function Navbar() {
-    // සටහන: දැනට UI එක test කරන්න mock state එකක් පාවිච්චි කරමු. 
-    // Backend එක හැදුවාම මේක සැබෑ Auth State එකට මාරු කරන්න ඕනේ.
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setIsLoggedIn(true);
+        }
+    }, []);
+
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setIsLoggedIn(false);
+        window.location.href = "/login";
+    };
 
     return (
         <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16 items-center">
 
-                    {/* Logo Section */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <span className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
                             TravelX
                         </span>
                     </Link>
 
-                    {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-6">
                         {isLoggedIn ? (
                             <>
@@ -33,15 +43,15 @@ export default function Navbar() {
                                     <PlusCircle className="w-5 h-5" />
                                     Create Listing
                                 </Link>
-                                <div className="h-6 w-px bg-gray-200"></div> {/* Divider */}
+                                <div className="h-6 w-px bg-gray-200"></div>
                                 <button
-                                    onClick={() => setIsLoggedIn(false)}
+                                    onClick={handleLogout}
                                     className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-red-500 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     Logout
                                 </button>
-                                {/* User Avatar */}
+
                                 <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">
                                     <User className="w-5 h-5" />
                                 </div>
@@ -60,13 +70,10 @@ export default function Navbar() {
                                 >
                                     Sign up
                                 </Link>
-                                {/* Testing Button - Remove in production */}
-                                <button onClick={() => setIsLoggedIn(true)} className="text-[10px] text-gray-400 underline absolute top-2 right-2">Test Login</button>
                             </>
                         )}
                     </div>
 
-                    {/* Mobile Menu Toggle Button */}
                     <div className="md:hidden flex items-center">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -78,7 +85,6 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Mobile Navigation Menu */}
             <div
                 className={`md:hidden absolute w-full bg-white border-b border-gray-100 shadow-lg transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-64 opacity-100 visible' : 'max-h-0 opacity-0 invisible'
                     } overflow-hidden`}
@@ -95,10 +101,7 @@ export default function Navbar() {
                                 Create Listing
                             </Link>
                             <button
-                                onClick={() => {
-                                    setIsLoggedIn(false);
-                                    setIsMobileMenuOpen(false);
-                                }}
+                                onClick={handleLogout}
                                 className="flex w-full items-center gap-3 px-3 py-3 rounded-lg text-base font-semibold text-red-600 hover:bg-red-50 transition-colors"
                             >
                                 <LogOut className="w-5 h-5" />
@@ -121,8 +124,6 @@ export default function Navbar() {
                             >
                                 Sign up
                             </Link>
-                            {/* Testing Button - Remove in production */}
-                            <button onClick={() => { setIsLoggedIn(true); setIsMobileMenuOpen(false); }} className="block w-full text-center mt-2 text-[10px] text-gray-400 underline">Test Login</button>
                         </>
                     )}
                 </div>

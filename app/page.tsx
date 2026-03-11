@@ -1,89 +1,190 @@
-import ListingCard from "./components/listings/ListingCard";
-import { Compass } from "lucide-react";
+'use client';
 
-// Database එක හදනකම් පෙනුම බලාගන්න අපි හදාගත්ත බොරු දත්ත (Mock Data)
-const MOCK_LISTINGS = [
-  {
-    id: "1",
-    title: "Sigiriya Rock Fortress Sunrise Tour",
-    description: "Experience the breathtaking sunrise from the top of the ancient Sigiriya Rock Fortress. Includes a guided tour of the ruins and frescoes.",
-    location: "Sigiriya, Sri Lanka",
-    price: 45,
-    duration: "4 Hours",
-    rating: 4.9,
-    imageUrl: "https://images.unsplash.com/photo-1588598198321-983cdfc6ca34?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "2",
-    title: "Ella Train Journey & Nine Arches",
-    description: "Take the world-famous scenic train ride to Ella, followed by a hike to the spectacular Nine Arches Bridge and Little Adam's Peak.",
-    location: "Ella, Sri Lanka",
-    price: 35,
-    duration: "6 Hours",
-    rating: 4.8,
-    imageUrl: "https://images.unsplash.com/photo-1546872006-407b4614eec4?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "3",
-    title: "Yala National Park Safari",
-    description: "An adventurous 4x4 jeep safari in Yala National Park. Spot leopards, elephants, and exotic birds in their natural habitat.",
-    location: "Yala, Sri Lanka",
-    price: 85,
-    duration: "Half Day",
-    rating: 4.7,
-    imageUrl: "https://images.unsplash.com/photo-1620958189578-1b2b80a2b534?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "4",
-    title: "Traditional Cooking Class",
-    description: "Learn to cook authentic Sri Lankan rice and curry in a traditional village kitchen using fresh clay pots and organic ingredients.",
-    location: "Galle, Sri Lanka",
-    price: 25,
-    duration: "3 Hours",
-    rating: 5.0,
-    imageUrl: "https://images.unsplash.com/photo-1604328698692-f76ea9498e76?auto=format&fit=crop&q=80&w=800"
-  }
-];
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { MapPin, Clock, Search, SlidersHorizontal, Loader2 } from 'lucide-react';
 
-export default function Home() {
+interface Experience {
+  _id: string;
+  title: string;
+  location: string;
+  image_url: string;
+  description: string;
+  price: number;
+  duration?: string;
+  createdAt: string;
+}
+
+function getTimeAgo(dateString: string) {
+  if (!dateString) return "Just now";
+  const now = new Date();
+  const past = new Date(dateString);
+  const diffInMs = now.getTime() - past.getTime();
+
+  const diffInMins = Math.floor(diffInMs / (1000 * 60));
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInMins < 1) return "Just now";
+  if (diffInMins < 60) return `${diffInMins}m ago`;
+  if (diffInHours < 24) return `${diffInHours}h ago`;
+  return `${diffInDays}d ago`;
+}
+
+function ExperienceCard({ data }: { data: Experience }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group flex flex-col h-full">
+      <div className="relative h-48 w-full overflow-hidden">
+        <img
+          src={data.image_url || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb'}
+          alt={data.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
 
-      {/* Page Header */}
-      <div className="mb-10 text-center md:text-left">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-3 flex items-center justify-center md:justify-start gap-3">
-          <Compass className="w-10 h-10 text-blue-600" />
-          Discover Experiences
-        </h1>
-        <p className="text-lg text-gray-500 max-w-2xl">
-          Explore unique travel experiences hosted by passionate local experts around the country.
-        </p>
-      </div>
-
-      {/* Responsive Grid for Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {MOCK_LISTINGS.map((listing) => (
-          <ListingCard
-            key={listing.id}
-            id={listing.id}
-            title={listing.title}
-            description={listing.description}
-            location={listing.location}
-            price={listing.price}
-            imageUrl={listing.imageUrl}
-            duration={listing.duration}
-            rating={listing.rating}
-          />
-        ))}
-      </div>
-
-      {/* No listings state (just in case the array is empty) */}
-      {MOCK_LISTINGS.length === 0 && (
-        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-          <p className="text-gray-500 text-lg">No experiences available right now. Check back later!</p>
+        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1">
+          <Clock className="w-3 h-3 text-white" />
+          <span className="text-[10px] font-bold text-white uppercase tracking-tight">
+            {getTimeAgo(data.createdAt)}
+          </span>
         </div>
-      )}
 
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-blue-600 shadow-sm">
+          ${data.price}
+        </div>
+      </div>
+
+      <div className="p-5 flex flex-col flex-grow">
+        <div className="flex items-center text-gray-400 text-xs mb-2 gap-1 font-medium uppercase tracking-wider">
+          <MapPin className="h-3.5 w-3.5 text-blue-500" />
+          <span className="text-black font-semibold">{data.location}</span>
+        </div>
+
+        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
+          {data.title}
+        </h3>
+
+        <p className="text-gray-500 text-sm line-clamp-2 mb-4 flex-grow">
+          {data.description}
+        </p>
+
+        <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+          <div className="flex items-center text-gray-500 text-xs gap-1 font-medium">
+            <Clock className="h-3.5 w-3.5 text-teal-500" />
+            <span className="text-black">{data.duration || 'Flexible'}</span>
+          </div>
+
+
+          <Link
+            href={`/experiences/${data._id}`}
+            className="text-blue-600 text-sm font-bold hover:text-blue-700 transition-colors cursor-pointer"
+          >
+            Details →
+          </Link>
+        </div>
+      </div>
     </div>
+  );
+}
+
+export default function HomePage() {
+  const [allExperiences, setAllExperiences] = useState<Experience[]>([]);
+  const [filteredData, setFilteredData] = useState<Experience[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+
+  useEffect(() => {
+    const fetchExperiences = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences`);
+        const result = await response.json();
+
+        let finalArray: Experience[] = [];
+
+        if (result.experiences) finalArray = result.experiences;
+        else if (result.data && result.data.experiences) finalArray = result.data.experiences;
+        else if (Array.isArray(result.data)) finalArray = result.data;
+        else if (Array.isArray(result)) finalArray = result;
+
+        if (finalArray.length > 0) {
+          const sorted = [...finalArray].sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setAllExperiences(sorted);
+          setFilteredData(sorted);
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchExperiences();
+  }, []);
+
+  useEffect(() => {
+    const filtered = allExperiences.filter(exp => {
+      const matchesSearch = exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        exp.location.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPrice = maxPrice === '' || exp.price <= Number(maxPrice);
+      return matchesSearch && matchesPrice;
+    });
+    setFilteredData(filtered);
+  }, [searchTerm, maxPrice, allExperiences]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Search & Filter UI */}
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-10 flex flex-col md:flex-row gap-4 items-center">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by title or location..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-black placeholder:text-gray-400"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <SlidersHorizontal className="h-5 w-5 text-gray-500 hidden md:block" />
+            <input
+              type="number"
+              placeholder="Max Price ($)"
+              className="w-full md:w-40 px-4 py-2.5 bg-white border border-gray-300 rounded-xl text-black focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-gray-400"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Latest Experiences</h2>
+          <p className="text-sm text-gray-500 font-medium">Showing {filteredData.length} items</p>
+        </div>
+
+        {filteredData.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {filteredData.map((exp) => (
+              <ExperienceCard key={exp._id} data={exp} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+            <p className="text-gray-500 font-medium">No experiences found matching your criteria.</p>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
