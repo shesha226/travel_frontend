@@ -5,9 +5,9 @@ This is a modern web application built to connect travelers with authentic, loca
 
 ## Tech Stack
 * **Frontend:** Next.js (App Router), React, Tailwind CSS, Lucide Icons
-* **Backend:** Node.js / Express.js (Update this based on your backend)
-* **Database:** MongoDB (Update this if you used PostgreSQL/MySQL)
-* **Deployment:** Vercel (Frontend) & Render/Heroku (Backend)
+* **Backend:** Node.js / Express.js 
+* **Database:** MongoDB (
+* **Deployment:** Vercel (Frontend) 
 
 ## Setup Instructions
 To run this project locally, follow these steps:
